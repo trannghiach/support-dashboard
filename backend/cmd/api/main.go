@@ -2,7 +2,6 @@ package main
 
 import (
 	"log"
-	"os"
 
 	"github.com/trannghiach/support-dashboard/backend/internal/db"
 	"github.com/trannghiach/support-dashboard/backend/internal/handler"
