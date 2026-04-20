@@ -214,3 +214,40 @@ func (h *TicketHandler) AssignTicket(c *gin.Context) {
 		"data": ticket,
 	})
 }
+
+func (h *TicketHandler) GetTicketByID(c *gin.Context) {
+	idParam := c.Param("id")
+	
+	id, err := strconv.ParseInt(idParam, 10, 64)
+	if err != nil {
+		response.JSONError(c, http.StatusBadRequest, "BAD_REQUEST", "invalid ticket id")
+		return
+	}
+	
+	userID, role, err := getAuthUser(c)
+	if err != nil {
+		response.JSONError(c, http.StatusUnauthorized, "UNAUTHORIZED", err.Error())
+		return
+	}
+	
+	ticket, err := h.service.GetTicketByID(
+		c.Request.Context(),
+		id,
+		userID,
+		role,
+	)
+	if err != nil {
+		switch err.Error() {
+		case "ticket not found":
+			response.JSONError(c, http.StatusNotFound, "NOT_FOUND", err.Error())
+		case "customers can only view their own tickets", "agents can only view tickets assigned to them":
+			response.JSONError(c, http.StatusForbidden, "FORBIDDEN", err.Error())
+		default:
+			response.JSONError(c, http.StatusInternalServerError, "INTERNAL_ERROR", "something went wrong")
+		}
+	}
+	
+	c.JSON(http.StatusOK, gin.H{
+		"data": ticket,
+	})
+}

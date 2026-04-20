@@ -244,3 +244,36 @@ func (s *TicketService) AssignTicket(
 
 	return ticket, nil
 }
+
+func (s *TicketService) GetTicketByID(
+	id int64,
+	ctx context.Context,
+	userID int64,
+	role string,
+) (*repository.Ticket, error) {
+	ticket, err := s.ticketRepo.GetTicketByID(ctx, id)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, errors.New("ticket not found")
+		}
+		return nil, err
+	}
+
+	switch role {
+	case "customer":
+		if ticket.CreatedBy != userID {
+			return nil, errors.New("customers can only view their own tickets")
+		}
+	case "agent":
+		if ticket.AssignedTo == nil || *ticket.AssignedTo != userID {
+			return nil, errors.New("agents can only view tickets assigned to them")
+		}
+	case "admin":
+		// full access, do nothing
+	default:
+		return nil, errors.New("invalid role")
+	}
+
+	return ticket, nil
+
+}

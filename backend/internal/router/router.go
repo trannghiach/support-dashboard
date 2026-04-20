@@ -36,6 +36,7 @@ func SetupRouter(
 		authorized.PATCH("/tickets/:id/status", ticketHandler.UpdateTicketStatus)
 		authorized.POST("/tickets/:id/replies", ticketHandler.CreateReply) 
 		authorized.PATCH("/tickets/:id/assign", ticketHandler.AssignTicket)
+		authorized.GET("/tickets/:id", ticketHandler.GetTicketByID)
 	}
 	
 	return r
