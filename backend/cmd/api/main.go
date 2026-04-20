@@ -9,10 +9,13 @@ import (
 	"github.com/trannghiach/support-dashboard/backend/internal/service"
 	"github.com/trannghiach/support-dashboard/backend/internal/repository"
 	"github.com/trannghiach/support-dashboard/backend/internal/router"
+	"github.com/trannghiach/support-dashboard/backend/internal/config"
 )
 
 func main() {
-	databaseURL := os.Getenv("DATABASE_URL")
+	config.LoadEnv()
+
+	databaseURL := config.GetEnv("DATABASE_URL", "")
 	if databaseURL == "" {
 		log.Fatal("DATABASE_URL environment variable is required")
 	}
@@ -23,7 +26,7 @@ func main() {
 	}
 	defer dbPool.Close()
 
-	jwtSecret := os.Getenv("JWT_SECRET")
+	jwtSecret := config.GetEnv("JWT_SECRET", "")
 	if jwtSecret == "" {
 		log.Fatal("JWT_SECRET environment variable is required")
 	}
