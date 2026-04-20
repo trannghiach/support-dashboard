@@ -246,8 +246,8 @@ func (s *TicketService) AssignTicket(
 }
 
 func (s *TicketService) GetTicketByID(
-	id int64,
 	ctx context.Context,
+	id int64,
 	userID int64,
 	role string,
 ) (*repository.Ticket, error) {
