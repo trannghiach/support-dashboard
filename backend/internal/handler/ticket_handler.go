@@ -286,3 +286,27 @@ func (h *TicketHandler) GetTicketByID(c *gin.Context) {
 		"data": ticket,
 	})
 }
+
+func (h *TicketHandler) GenerateAIAssist(c *gin.Context) {
+	userID, role, err := getAuthUser(c)
+	if err != nil {
+		response.JSONError(c, http.StatusUnauthorized, "UNAUTHORIZED", err.Error())
+		return
+	}
+
+	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil || id <= 0 {
+		response.JSONError(c, http.StatusBadRequest, "BAD_REQUEST", "invalid ticket id")
+		return
+	}
+
+	result, err := h.service.GenerateTicketAIAssist(c.Request.Context(), id, userID, role)
+	if err != nil {
+		response.JSONError(c, http.StatusBadRequest, "BAD_REQUEST", err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"data": result,
+	})
+}

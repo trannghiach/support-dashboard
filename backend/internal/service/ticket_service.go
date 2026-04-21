@@ -8,17 +8,28 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/trannghiach/support-dashboard/backend/internal/dto"
 	"github.com/trannghiach/support-dashboard/backend/internal/repository"
+	"github.com/trannghiach/support-dashboard/backend/internal/ai"
 )
+
+type TicketAIClient interface {
+	GenerateTicketAssist(ctx context.Context, prompt string) (*ai.TicketAIAssistOutput, error)
+}
 
 type TicketService struct {
 	ticketRepo *repository.TicketRepository
 	userRepo   *repository.UserRepository
+	aiClient   TicketAIClient
 }
 
-func NewTicketService(ticketRepo *repository.TicketRepository, userRepo *repository.UserRepository) *TicketService {
+func NewTicketService(
+	ticketRepo *repository.TicketRepository,
+	userRepo *repository.UserRepository,
+	aiClient TicketAIClient,
+) *TicketService {
 	return &TicketService{
 		ticketRepo: ticketRepo,
 		userRepo:   userRepo,
+		aiClient:   aiClient,
 	}
 }
 
@@ -316,4 +327,30 @@ func (s *TicketService) GetTicketByID(
 
 	return ticket, nil
 
+}
+
+func (s *TicketService) GenerateTicketAIAssist(
+	ctx context.Context,
+	ticketID int64,
+	userID int64,
+	role string,
+) (*ai.TicketAIAssistOutput, error) {
+	ticket, err := s.GetTicketByID(ctx, ticketID, userID, role)
+	if err != nil {
+		return nil, err
+	}
+
+	replies, err := s.GetReplies(ctx, userID, role, ticketID)
+	if err != nil {
+		return nil, err
+	}
+
+	prompt := ai.BuildTicketAssistPrompt(ticket, replies)
+
+	out, err := s.aiClient.GenerateTicketAssist(ctx, prompt)
+	if err != nil {
+		return nil, err
+	}
+
+	return out, nil
 }

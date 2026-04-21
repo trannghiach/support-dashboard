@@ -54,6 +54,7 @@ func SetupRouter(
 		authorized.GET("/tickets/:id", ticketHandler.GetTicketByID)
 		authorized.GET("/tickets", ticketHandler.GetTickets)
 		authorized.GET("/tickets/:id/replies", ticketHandler.GetReplies) 
+		authorized.POST("/tickets/:id/ai-assist", ticketHandler.GenerateAIAssist)
 	}
 	
 	return r
