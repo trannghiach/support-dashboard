@@ -58,3 +58,10 @@ export type ListRepliesResponse = {
 export type CreateReplyRequest = {
   message: string;
 };
+
+export type GenerateTicketAIAssistResponse = {
+  data: {
+    summary: string;
+    suggested_replies: string[];
+  };
+};
