@@ -26,6 +26,8 @@ services:
     - ./backend/.env:/app/.env
     networks:
       - sd_net
+    ports:
+      - "8000:8000"
 
   frontend:
     build: ./frontend
@@ -35,6 +37,8 @@ services:
       - backend
     networks:
       - sd_net
+    ports:
+      - "3000:3000"
 
 networks:
   sd_net:
