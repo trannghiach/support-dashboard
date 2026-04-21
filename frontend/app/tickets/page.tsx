@@ -69,7 +69,7 @@ export default function TicketsPage() {
         };
 
         fetchTickets();
-    }, [token, router, status, priority]);
+    }, [token, router, status, priority, message]);
 
     const handleLogout = () => {
         removeToken();
@@ -158,9 +158,15 @@ export default function TicketsPage() {
                         <Text type="secondary">Support dashboard ticket list</Text>
                     </div>
 
-                    <Button danger onClick={handleLogout}>
-                        Logout
-                    </Button>
+                    <Space>
+                        <Button type="primary" onClick={() => router.push("/tickets/create")}>
+                            Create Ticket
+                        </Button>
+
+                        <Button danger onClick={handleLogout}>
+                            Logout
+                        </Button>
+                    </Space>
                 </Flex>
 
                 <Space style={{ marginBottom: 16 }} wrap>

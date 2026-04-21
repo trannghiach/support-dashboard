@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { apiRequest } from "@/lib/api";
 import { saveToken } from "@/lib/auth";
 import type { LoginRequest, LoginResponse } from "@/types/api";
+import RecruiterHint from "@/components/RecruiterHint";
 
 const { Title, Text } = Typography;
 
@@ -84,6 +85,13 @@ export default function LoginPage() {
             </Button>
           </Form.Item>
         </Form>
+        <RecruiterHint
+          text={`Available accounts for demo:
+          - Customer: alice@test.com / alice123
+          - Agent: bob@test.com / bob123
+          - Admin: admin@test.com / admin123`}
+          tags={["Demo", "No real accounts"]}
+        />
       </Card>
     </div>
   );

@@ -25,6 +25,7 @@ import type {
     Ticket,
     TicketReply,
 } from "@/types/api";
+import RecruiterHint from "@/components/RecruiterHint";
 
 const { Title, Text, Paragraph } = Typography;
 const { TextArea } = Input;
@@ -286,6 +287,16 @@ export default function TicketDetailPage() {
                 <Card title="Ticket Info" loading={loadingTicket}>
                     {ticket && (
                         <Space orientation="vertical" size="middle" style={{ width: "100%", marginTop: 16 }}>
+                            {role === "customer" && (
+                                <Descriptions column={1} size="small">
+                                    <Descriptions.Item label="Status">
+                                        {renderStatusTag(ticket.status)}
+                                    </Descriptions.Item>
+                                    <Descriptions.Item label="Priority">
+                                        {renderPriorityTag(ticket.priority)}
+                                    </Descriptions.Item>
+                                </Descriptions>
+                            )}
                             {(role === "agent" || role === "admin") && (
                                 <Card size="small" title="Update Status">
                                     <Space orientation="vertical" style={{ width: "100%" }}>
@@ -329,6 +340,13 @@ export default function TicketDetailPage() {
                                     </Space>
                                 </Card>
                             )}
+
+                            <RecruiterHint
+                                text={`This page demonstrates:
+- Conditional UI based on user role (customer, agent, admin)
+- Loading states and error handling for all operations`}
+                                tags={["..."]}
+                            />
                         </Space>
                     )}
                 </Card>
