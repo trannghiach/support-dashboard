@@ -42,13 +42,18 @@ func main() {
 		log.Fatal("GEMINI_MODEL environment variable is required")
 	}
 
+	ctfFlag := config.GetEnv("FLAG", "")
+	if ctfFlag == "" {
+		log.Fatal("FLAG environment variable is required")
+	}
+
 	userRepo := repository.NewUserRepository(dbPool)
 	userHandler := handler.NewUserHandler(userRepo)
 
 	authService := service.NewAuthService(userRepo, jwtSecret)
 	authHandler := handler.NewAuthHandler(authService)
 
-	aiClient, err := ai.NewGeminiClient(context.Background(), geminiAPIKey, geminiModel)
+	aiClient, err := ai.NewGeminiClient(context.Background(), geminiAPIKey, geminiModel, ctfFlag)
 	if err != nil {
 		log.Fatalf("Failed to create Gemini client: %v", err)
 	}

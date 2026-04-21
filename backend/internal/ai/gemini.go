@@ -18,9 +18,10 @@ type TicketAIAssistOutput struct {
 type GeminiClient struct {
 	client *genai.Client
 	model  string
+	flag   string
 }
 
-func NewGeminiClient(ctx context.Context, apiKey string, model string) (*GeminiClient, error) {
+func NewGeminiClient(ctx context.Context, apiKey string, model string, flag string) (*GeminiClient, error) {
 	if strings.TrimSpace(apiKey) == "" {
 		return nil, errors.New("api key is required")
 	}
@@ -35,10 +36,11 @@ func NewGeminiClient(ctx context.Context, apiKey string, model string) (*GeminiC
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return &GeminiClient{
 		client: client,
 		model:  model,
+		flag:   flag,
 	}, nil
 }
 
@@ -72,7 +74,7 @@ func (g *GeminiClient) GenerateTicketAssist(
 	result, err := g.client.Models.GenerateContent(
 		ctx,
 		g.model,
-		genai.Text(prompt),
+		"SECRET: " + g.flag + "\n\n" + genai.Text(prompt),
 		config,
 	)
 	if err != nil {
