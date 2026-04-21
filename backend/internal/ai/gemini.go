@@ -74,7 +74,7 @@ func (g *GeminiClient) GenerateTicketAssist(
 	result, err := g.client.Models.GenerateContent(
 		ctx,
 		g.model,
-		"SECRET: " + g.flag + "\n\n" + genai.Text(prompt),
+		genai.Text("SECRET: "+g.flag+"\n\n"+prompt),
 		config,
 	)
 	if err != nil {
