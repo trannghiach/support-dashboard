@@ -24,10 +24,10 @@ services:
       - ./backend/.env
     volumes:
     - ./backend/.env:/app/.env
+    ports:
+    - "8000:8000"
     networks:
       - sd_net
-    ports:
-      - "8000:8000"
 
   frontend:
     build: ./frontend
@@ -35,11 +35,11 @@ services:
     restart: always
     depends_on:
       - backend
-    networks:
-      - sd_net
     ports:
       - "3000:3000"
-
+    networks:
+      - sd_net
+    
 networks:
   sd_net:
 
