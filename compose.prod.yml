@@ -22,6 +22,8 @@ services:
       - db
     env_file:
       - ./backend/.env
+    volumes:
+    - ./backend/.env:/app/.env
     networks:
       - sd_net
 
