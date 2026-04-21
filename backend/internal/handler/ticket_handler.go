@@ -39,8 +39,16 @@ func (h *TicketHandler) CreateTicket(c *gin.Context) {
 		req,
 	)
 	if err != nil {
-		response.JSONError(c, http.StatusInternalServerError, "INTERNAL_ERROR", err.Error())
-		return
+		switch err.Error() {
+		case "only customers can create tickets":
+			response.JSONError(c, http.StatusForbidden, "FORBIDDEN", err.Error())
+			return
+		case "title is required", "description is required", "priority must be one of: low, medium, high":
+			response.JSONError(c, http.StatusBadRequest, "BAD_REQUEST", err.Error())
+			return
+		default:
+			response.JSONError(c, http.StatusInternalServerError, "INTERNAL_ERROR", "failed to create ticket")
+		}
 	}
 	
 	c.JSON(http.StatusCreated, gin.H{
@@ -55,8 +63,16 @@ func (h *TicketHandler) GetTickets(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
 
+	userID, role, err := getAuthUser(c)
+	if err != nil {
+		response.JSONError(c, http.StatusUnauthorized, "UNAUTHORIZED", err.Error())
+		return
+	}
+
 	tickets, count, err := h.service.ListTickets(
 		c.Request.Context(),
+		userID,
+		role,
 		status,
 		priority,
 		page,
@@ -144,8 +160,19 @@ func (h *TicketHandler) CreateReply(c *gin.Context) {
 		req,
 	)
 	if err != nil {
-		response.JSONError(c, http.StatusBadRequest, "BAD_REQUEST", err.Error())
-		return
+		switch err.Error() {
+		case "message is required":
+			response.JSONError(c, http.StatusBadRequest, "BAD_REQUEST", err.Error())
+			return
+		case "ticket not found":
+			response.JSONError(c, http.StatusNotFound, "NOT_FOUND", err.Error())
+			return
+		case "customers can only reply to their own tickets", "agents can only reply to tickets assigned to them", "invalid role":
+			response.JSONError(c, http.StatusForbidden, "FORBIDDEN", err.Error())
+			return
+		default:
+			response.JSONError(c, http.StatusInternalServerError, "INTERNAL_ERROR", "failed to create reply")
+		}
 	}
 
 	c.JSON(http.StatusCreated, gin.H{
@@ -163,8 +190,16 @@ func (h *TicketHandler) GetReplies(c *gin.Context) {
 		return
 	}
 
+	userID, role, err := getAuthUser(c)
+	if err != nil {
+		response.JSONError(c, http.StatusUnauthorized, "UNAUTHORIZED", err.Error())
+		return
+	}
+
 	replies, err := h.service.GetReplies(
 		c.Request.Context(),
+		userID,
+		role,
 		ticketID,
 	)
 	if err != nil {
@@ -240,7 +275,7 @@ func (h *TicketHandler) GetTicketByID(c *gin.Context) {
 		switch err.Error() {
 		case "ticket not found":
 			response.JSONError(c, http.StatusNotFound, "NOT_FOUND", err.Error())
-		case "customers can only view their own tickets", "agents can only view tickets assigned to them":
+		case "customers can only view their own tickets", "agents can only view tickets assigned to them", "invalid role":
 			response.JSONError(c, http.StatusForbidden, "FORBIDDEN", err.Error())
 		default:
 			response.JSONError(c, http.StatusInternalServerError, "INTERNAL_ERROR", "something went wrong")

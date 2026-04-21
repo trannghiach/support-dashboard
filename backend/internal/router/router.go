@@ -43,8 +43,6 @@ func SetupRouter(
 
 	// public dev routes
 	r.GET("/users", userHandler.GetAll)
-	r.GET("/tickets", ticketHandler.GetTickets)
-	r.GET("/tickets/:id/replies", ticketHandler.GetReplies) 
 
 	authorized := r.Group("/")
 	authorized.Use(middleware.RequireAuth(jwtSecret)) 
@@ -54,6 +52,8 @@ func SetupRouter(
 		authorized.POST("/tickets/:id/replies", ticketHandler.CreateReply) 
 		authorized.PATCH("/tickets/:id/assign", ticketHandler.AssignTicket)
 		authorized.GET("/tickets/:id", ticketHandler.GetTicketByID)
+		authorized.GET("/tickets", ticketHandler.GetTickets)
+		authorized.GET("/tickets/:id/replies", ticketHandler.GetReplies) 
 	}
 	
 	return r

@@ -67,6 +67,8 @@ func (s *TicketService) CreateTicket(
 
 func (s *TicketService) ListTickets(
 	ctx context.Context,
+	userID int64,
+	role string,
 	status string,
 	priority string,
 	page int,
@@ -81,7 +83,7 @@ func (s *TicketService) ListTickets(
 
 	offset := (page - 1) * limit
 
-	tickets, err := s.ticketRepo.ListTickets(ctx, status, priority, limit, offset)
+	tickets, err := s.ticketRepo.ListTickets(ctx, userID, role, status, priority, limit, offset)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -182,11 +184,24 @@ func (s *TicketService) CreateReply(
 	}
 
 	// RBAC
-	if role == "customer" && ticket.CreatedBy != userID {
-		return nil, errors.New("customers can only reply to their own tickets")
+	switch role {
+	case "customer":
+		if ticket.CreatedBy != userID {
+			return nil, errors.New("customers can only reply to their own tickets")
+		}
+		
+	case "agent":
+		if ticket.AssignedTo == nil || *ticket.AssignedTo != userID {
+			return nil, errors.New("agents can only reply to tickets assigned to them")
+		}
+
+	case "admin":
+		// full access, do nothing
+		
+	default:
+		return nil, errors.New("invalid role")
 	}
 
-	// admins and agents can reply to any ticket temporarily, we can add more rules later if needed
 	reply, err := s.ticketRepo.CreateReply(ctx, ticketID, userID, message)
 	if err != nil {
 		return nil, err
@@ -197,8 +212,33 @@ func (s *TicketService) CreateReply(
 
 func (s *TicketService) GetReplies(
 	ctx context.Context,
+	userID int64,
+	role string,
 	ticketID int64,
 ) ([]repository.TicketReply, error) {
+	ticket, err := s.ticketRepo.GetTicketByID(ctx, ticketID)
+    if err != nil {
+        if errors.Is(err, pgx.ErrNoRows) {
+            return nil, errors.New("ticket not found")
+        }
+        return nil, err
+    }
+
+    switch role {
+    case "customer":
+        if ticket.CreatedBy != userID {
+            return nil, errors.New("customers can only view replies of their own tickets")
+        }
+    case "agent":
+        if ticket.AssignedTo == nil || *ticket.AssignedTo != userID {
+            return nil, errors.New("agents can only view replies of tickets assigned to them")
+        }
+    case "admin":
+    default:
+        return nil, errors.New("invalid role")
+    }
+
+	// Main logic
 	replies, err := s.ticketRepo.GetReplies(ctx, ticketID)
 	if err != nil {
 		return nil, err

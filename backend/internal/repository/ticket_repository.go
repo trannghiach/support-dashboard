@@ -61,6 +61,8 @@ func (r *TicketRepository) CreateTicket(ctx context.Context, t *Ticket) error {
 
 func (r *TicketRepository) ListTickets(
 	ctx context.Context,
+	userID int64,
+	role string,
 	status string,
 	priority string,
 	limit int,
@@ -71,11 +73,14 @@ func (r *TicketRepository) ListTickets(
 			SELECT id, title, description, status, priority,
 				created_by, assigned_to, created_at, updated_at
 			FROM tickets
-			WHERE 1=1
+			WHERE 
+				($1 = 'admin') OR
+				($1 = 'agent' AND (assigned_to = $2 OR created_by = $2)) OR
+				($1 = 'customer' AND created_by = $2)
 	`
 
-	args := []any{}
-	argIdx := 1
+	args := []any{role, userID}
+	argIdx := 3
 
 	if status != "" {
 		query += " AND status = $" + strconv.Itoa(argIdx)
