@@ -16,6 +16,7 @@ Ticket management system with role-based access control and an AI assistant that
 
 Frontend: http://localhost:3000  
 Backend: http://localhost:8080  
+Available now at: http://sd.lilsadfoqs.dev
 
 ---
 
