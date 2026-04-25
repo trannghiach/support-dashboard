@@ -5,6 +5,7 @@ import {
     Button,
     Card,
     Flex,
+    Grid,
     Select,
     Space,
     Table,
@@ -19,6 +20,7 @@ import { getToken, removeToken } from "@/lib/auth";
 import type { ListTicketsResponse, Ticket } from "@/types/api";
 
 const { Title, Text } = Typography;
+const { useBreakpoint } = Grid;
 
 type StatusFilter = "" | "open" | "in_progress" | "resolved";
 type PriorityFilter = "" | "low" | "medium" | "high";
@@ -34,6 +36,7 @@ export default function TicketsPage() {
     const [priority, setPriority] = useState<PriorityFilter>("");
 
     const token = useMemo(() => getToken(), []);
+    const screens = useBreakpoint();
 
     useEffect(() => {
         if (!token) {
@@ -148,9 +151,15 @@ export default function TicketsPage() {
     ];
 
     return (
-        <div style={{ padding: 24 }}>
+        <div style={{ padding: screens.xs ? 12 : 24 }}>
             <Card>
-                <Flex justify="space-between" align="center" style={{ marginBottom: 24 }}>
+                <Flex
+                    justify="space-between"
+                    align={screens.md ? "center" : "flex-start"}
+                    vertical={!screens.md}
+                    gap={12}
+                    style={{ marginBottom: 24 }}
+                >
                     <div>
                         <Title level={2} style={{ margin: 0 }}>
                             Tickets
@@ -158,7 +167,7 @@ export default function TicketsPage() {
                         <Text type="secondary">Support dashboard ticket list</Text>
                     </div>
 
-                    <Space>
+                    <Space wrap>
                         <Button type="primary" onClick={() => router.push("/tickets/create")}>
                             Create Ticket
                         </Button>
@@ -169,11 +178,11 @@ export default function TicketsPage() {
                     </Space>
                 </Flex>
 
-                <Space style={{ marginBottom: 16 }} wrap>
+                <Space style={{ marginBottom: 16, width: "100%" }} wrap>
                     <Select
                         value={status}
                         onChange={(value) => setStatus(value)}
-                        style={{ width: 180 }}
+                        style={{ width: screens.xs ? "100%" : 180 }}
                         options={[
                             { value: "", label: "All Statuses" },
                             { value: "open", label: "Open" },
@@ -185,7 +194,7 @@ export default function TicketsPage() {
                     <Select
                         value={priority}
                         onChange={(value) => setPriority(value)}
-                        style={{ width: 180 }}
+                        style={{ width: screens.xs ? "100%" : 180 }}
                         options={[
                             { value: "", label: "All Priorities" },
                             { value: "low", label: "Low" },
@@ -201,6 +210,7 @@ export default function TicketsPage() {
                     dataSource={tickets}
                     loading={loading}
                     pagination={false}
+                    scroll={{ x: 900 }}
                     onRow={(record) => ({
                         onClick: () => router.push(`/tickets/${record.id}`),
                         style: { cursor: "pointer" },
