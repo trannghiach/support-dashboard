@@ -15,6 +15,7 @@ import {
     App,
     Select,
     Divider,
+    Grid,
 } from "antd";
 import {
     RobotOutlined,
@@ -36,6 +37,7 @@ import { AISparklesIcon } from "@/components/icons/AISparkles";
 
 const { Title, Text, Paragraph } = Typography;
 const { TextArea } = Input;
+const { useBreakpoint } = Grid;
 
 export default function TicketDetailPage() {
     const { message } = App.useApp();
@@ -60,6 +62,7 @@ export default function TicketDetailPage() {
     const [loadingAI, setLoadingAI] = useState(false);
     const [aiSummary, setAiSummary] = useState("");
     const [suggestedReplies, setSuggestedReplies] = useState<string[]>([]);
+    const screens = useBreakpoint();
 
     const ticketId = params.id;
 
@@ -255,9 +258,15 @@ export default function TicketDetailPage() {
     };
 
     return (
-        <div style={{ padding: 24 }}>
-            <Flex justify="space-between" align="center" style={{ marginBottom: 24 }}>
-                <Space>
+        <div style={{ padding: screens.xs ? 12 : 24 }}>
+            <Flex
+                justify="space-between"
+                align={screens.md ? "center" : "flex-start"}
+                vertical={!screens.md}
+                gap={12}
+                style={{ marginBottom: 24 }}
+            >
+                <Space wrap>
                     <Button onClick={() => router.push("/tickets")}>Back</Button>
                     <Title level={2} style={{ margin: 0 }}>
                         Ticket Detail
@@ -272,7 +281,7 @@ export default function TicketDetailPage() {
             <div
                 style={{
                     display: "grid",
-                    gridTemplateColumns: "2fr 1fr",
+                    gridTemplateColumns: screens.lg ? "2fr 1fr" : "1fr",
                     gap: 24,
                     alignItems: "start",
                 }}
@@ -294,7 +303,12 @@ export default function TicketDetailPage() {
                             <Space orientation="vertical" size="middle" style={{ width: "100%" }}>
                                 {replies.map((reply) => (
                                     <Card key={reply.id} size="small">
-                                        <Flex justify="space-between" align="center">
+                                        <Flex
+                                            justify="space-between"
+                                            align={screens.sm ? "center" : "flex-start"}
+                                            vertical={!screens.sm}
+                                            gap={4}
+                                        >
                                             <Text strong>User #{reply.user_id}</Text>
                                             <Text type="secondary">
                                                 {new Date(reply.created_at).toLocaleString()}
@@ -429,7 +443,12 @@ export default function TicketDetailPage() {
                                                         }}
                                                     >
                                                         <Space orientation="vertical" size={10} style={{ width: "100%" }}>
-                                                            <Flex justify="space-between" align="center">
+                                                            <Flex
+                                                                justify="space-between"
+                                                                align={screens.sm ? "center" : "flex-start"}
+                                                                vertical={!screens.sm}
+                                                                gap={8}
+                                                            >
                                                                 <Text strong style={{ fontSize: 13 }}>
                                                                     Reply Option {index + 1}
                                                                 </Text>

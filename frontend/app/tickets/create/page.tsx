@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { App, Button, Card, Form, Input, Select, Space, Typography, Flex } from "antd";
+import { App, Button, Card, Form, Input, Select, Space, Typography, Flex, Grid } from "antd";
 import { useRouter } from "next/navigation";
 import { apiRequest } from "@/lib/api";
 import { getToken, removeToken } from "@/lib/auth";
@@ -9,6 +9,7 @@ import RecruiterHint from "@/components/RecruiterHint";
 
 const { Title } = Typography;
 const { TextArea } = Input;
+const { useBreakpoint } = Grid;
 
 type CreateTicketFormValues = {
   title: string;
@@ -23,6 +24,7 @@ export default function CreateTicketPage() {
 
   const [token, setToken] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const screens = useBreakpoint();
 
   useEffect(() => {
     const storedToken = getToken();
@@ -61,9 +63,15 @@ export default function CreateTicketPage() {
   };
 
   return (
-    <div style={{ padding: 24, maxWidth: 900, margin: "0 auto" }}>
-      <Flex justify="space-between" align="center" style={{ marginBottom: 24 }}>
-        <Space>
+    <div style={{ padding: screens.xs ? 12 : 24, maxWidth: 900, margin: "0 auto" }}>
+      <Flex
+        justify="space-between"
+        align={screens.md ? "center" : "flex-start"}
+        vertical={!screens.md}
+        gap={12}
+        style={{ marginBottom: 24 }}
+      >
+        <Space wrap>
           <Button onClick={() => router.push("/tickets")}>Back</Button>
           <Title level={2} style={{ margin: 0 }}>
             Create Ticket
@@ -119,7 +127,7 @@ export default function CreateTicketPage() {
           </Form.Item>
 
           <Form.Item style={{ marginBottom: 0 }}>
-            <Space>
+            <Space wrap>
               <Button onClick={() => router.push("/tickets")}>Cancel</Button>
               <Button type="primary" htmlType="submit" loading={submitting}>
                 Create Ticket

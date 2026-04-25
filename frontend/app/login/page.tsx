@@ -46,7 +46,7 @@ export default function LoginPage() {
         background: "#f5f5f5",
       }}
     >
-      <Card style={{ width: 420 }}>
+      <Card style={{ width: "100%", maxWidth: 420 }}>
         <div style={{ marginBottom: 24 }}>
           <Title level={2} style={{ marginBottom: 8 }}>
             Support Dashboard
